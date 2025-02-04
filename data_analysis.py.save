@@ -1,0 +1,59 @@
+    # Connect to the MySQL database
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="your_username",  # Replace with your MySQL username
+        password="your_password",  # Replace with your MySQL password
+        database="OrderListDB"
+    )
+    
+    cursor = conn.cursor()
+
+    # Insert data into the orders table
+    for _, row in order_df.iterrows():
+        sql = '''
+        INSERT INTO orders (OrderID, Product, Quantity, Price_per_Unit, CustomerName, Total_Price)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        '''
+        cursor.execute(sql, tuple(row))
+
+    conn.commit()
+
+    # Fetch and display the data from the database
+    print("Fetching data from the MySQL table...")
+    cursor.execute("SELECT * FROM orders")
+    result = cursor.fetchall()
+    df = pd.DataFrame(result, columns=['OrderID', 'Product', 'Quantity', 'Price_per_Unit', 'CustomerName', 'Total_Price'])
+    print("Data from MySQL table:\n", df)
+
+    cursor.close()
+    conn.close()
+
+    # Save the data to CSV for future analysis
+    df.to_csv('OrderList.csv', index=False)
+    print("Data saved to OrderList.csv")
+
+    # Basic Data Analysis
+    print("\nData Summary:\n", df.describe())
+    print("\nTotal Sales per Product:\n", df.groupby('Product')['Total_Price'].sum())
+    
+    # Visualization: Total Sales per Product
+    sns.barplot(x=df['Product'], y=df['Total_Price'])
+    plt.title('Total Sales per Product')
+    plt.show()
+
+    # Visualization: Scatter Plot for Quantity vs Total Price
+    plt.scatter(df['Quantity'], df['Total_Price'], color='purple')
+    plt.title('Quantity vs Total Price')
+    plt.xlabel('Quantity')
+    plt.ylabel('Total Price')
+    plt.show()
+
+    # Box Plot to Identify Outliers
+    df[['Quantity', 'Total_Price']].boxplot()
+    plt.title('Box Plot for Quantity and Total Price')
+    plt.show()
+
+if __name__ == "__main__":
+    create_order_list()
+
+
