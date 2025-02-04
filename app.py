@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import mysql.connector
 
-# Create sample data
+
 def create_order_list():
     data = {
         'OrderID': np.arange(1, 6),
@@ -11,12 +11,10 @@ def create_order_list():
         'Price_per_Unit': np.random.randint(5000, 20000, size=5),
         'CustomerName': ['Ananya', 'Rahul', 'Priya', 'Vikram', 'Sneha'],
     }
-
-    # Create a DataFrame
+    
     order_df = pd.DataFrame(data)
     order_df['Total_Price'] = order_df['Quantity'] * order_df['Price_per_Unit']
-
-    # Connect to MySQL
+ 
     conn = mysql.connector.connect(
         host="localhost",
         user="ananya",
@@ -24,8 +22,7 @@ def create_order_list():
         database="OrderListDB"
     )
     cursor = conn.cursor()
-
-    # Insert data into the database
+   
     for _, row in order_df.iterrows():
         sql = '''
         INSERT INTO orders (OrderID, Product, Quantity, Price_per_Unit, CustomerName, Total_Price)
@@ -35,7 +32,6 @@ def create_order_list():
     
     conn.commit()
 
-    # Fetch and display the data
     cursor.execute("SELECT * FROM orders")
     result = cursor.fetchall()
     df = pd.DataFrame(result, columns=['OrderID', 'Product', 'Quantity', 'Price_per_Unit', 'CustomerName', 'Total_Price'])
